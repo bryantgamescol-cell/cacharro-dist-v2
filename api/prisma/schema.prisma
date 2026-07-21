@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(CLIENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+}
+
+model Brand {
+  id String @id @default(cuid())
+
+  name String @unique
+
+  logo String?
+
+  active Boolean @default(true)
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id String @id @default(cuid())
+
+  name String
+  description String?
+
+  purchasePrice Float
+  salePrice Float
+
+  stock Int @default(0)
+
+  sku String? @unique
+  barcode String? @unique
+
+  image String?
+
+  active Boolean @default(true)
+
+  categoryId String
+  category Category @relation(fields: [categoryId], references: [id])
+
+  brandId String
+  brand Brand @relation(fields: [brandId], references: [id])
+
+  supplierId String?
+  supplier Supplier? @relation(fields: [supplierId], references: [id])
+
+  movements InventoryMovement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Supplier {
+  id String @id @default(cuid())
+
+  name String
+  email String? @unique
+  phone String?
+  address String?
+
+  active Boolean @default(true)
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum MovementType {
+  ENTRY
+  EXIT
+  ADJUSTMENT
+}
+
+model InventoryMovement {
+  id String @id @default(cuid())
+
+  productId String
+  product Product @relation(fields: [productId], references: [id])
+
+  type MovementType
+
+  quantity Int
+
+  previousStock Int
+
+  currentStock Int
+
+  reason String?
+
+  createdAt DateTime @default(now())
+}

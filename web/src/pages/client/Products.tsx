@@ -1,28 +1,19 @@
 import {
   Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  CardMedia,
-  Chip,
   CircularProgress,
   Container,
   Grid,
-  Stack,
   Typography
 } from "@mui/material";
 
 import {
-  useNavigate,
   useSearchParams
 } from "react-router-dom";
 
 import { useProducts } from "../../hooks/useProducts";
+import ProductCard from "../../components/home/ProductCard";
 
 function Products() {
-
-  const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
 
@@ -77,9 +68,7 @@ function Products() {
 
           <Grid size={12}>
 
-            <Typography
-              textAlign="center"
-            >
+            <Typography textAlign="center">
               No hay productos disponibles.
             </Typography>
 
@@ -99,99 +88,19 @@ function Products() {
             }}
           >
 
-            <Card
-              sx={{
-                height: "100%",
-                borderRadius: 4,
-                transition: ".3s",
-
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: 8
-                }
-              }}
-            >
-
-              <CardMedia
-                component="img"
-                height="220"
-                image={
-                  product.image ||
-                  "https://placehold.co/600x400?text=Producto"
-                }
-                alt={product.name}
-              />
-
-              <CardContent>
-
-                <Typography
-                  color="primary"
-                >
-                  {product.category?.name}
-                </Typography>
-
-                <Typography
-                  variant="h6"
-                  fontWeight={700}
-                  mt={1}
-                >
-                  {product.name}
-                </Typography>
-
-                <Typography
-                  color="text.secondary"
-                  mt={1}
-                >
-                  {product.brand?.name}
-                </Typography>
-
-                <Stack
-                  direction="row"
-                  justifyContent="space-between"
-                  mt={3}
-                >
-
-                  <Chip
-                    color={
-                      product.stock > 0
-                        ? "success"
-                        : "error"
-                    }
-                    label={
-                      product.stock > 0
-                        ? `${product.stock} disponibles`
-                        : "Agotado"
-                    }
-                  />
-
-                  <Typography
-                    variant="h6"
-                    fontWeight={700}
-                    color="primary"
-                  >
-                    $
-                    {product.salePrice.toLocaleString("es-CO")}
-                  </Typography>
-
-                </Stack>
-
-              </CardContent>
-
-              <CardActions>
-
-                <Button
-                  fullWidth
-                  variant="contained"
-                  onClick={() =>
-                    navigate(`/productos/${product.id}`)
-                  }
-                >
-                  Ver producto
-                </Button>
-
-              </CardActions>
-
-            </Card>
+            <ProductCard
+              id={product.id}
+              image={
+                product.image ||
+                "https://placehold.co/600x400?text=Producto"
+              }
+              name={product.name}
+              description={product.description}
+              category={product.category?.name || "Sin categoría"}
+              stock={product.stock}
+              purchasePrice={product.purchasePrice}
+              salePrice={product.salePrice}
+            />
 
           </Grid>
 

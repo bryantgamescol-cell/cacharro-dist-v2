@@ -1,135 +1,148 @@
+import { Link } from "react-router-dom";
 import {
-  Button,
   Card,
-  CardActionArea,
-  CardActions,
-  CardContent,
   CardMedia,
+  CardContent,
+  Typography,
+  Button,
   Chip,
   Stack,
-  Typography
+  Box
 } from "@mui/material";
-
-import { useNavigate } from "react-router-dom";
 
 type Props = {
   id: string;
-  image: string;
+  image?: string;
   name: string;
+  description?: string;
   category: string;
   stock: number;
-  price: number;
+  purchasePrice: number;
+  salePrice: number;
 };
 
 function ProductCard({
   id,
   image,
   name,
+  description,
   category,
   stock,
-  price
+  purchasePrice,
+  salePrice
 }: Props) {
-
-  const navigate = useNavigate();
-
   return (
-
     <Card
       sx={{
         borderRadius: 4,
+        overflow: "hidden",
+        transition: ".25s",
         height: "100%",
-        transition: ".3s",
-
+        display: "flex",
+        flexDirection: "column",
         "&:hover": {
-          transform: "translateY(-6px)",
+          transform: "translateY(-8px)",
           boxShadow: 8
         }
       }}
     >
+      <CardMedia
+        component="img"
+        height="240"
+        image={
+          image ||
+          "https://placehold.co/600x400?text=Sin+Imagen"
+        }
+      />
 
-      <CardActionArea
-        onClick={() => navigate(`/productos/${id}`)}
+      <CardContent
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          flexGrow: 1
+        }}
       >
-
-        <CardMedia
-          component="img"
-          height="220"
-          image={
-            image ||
-            "https://placehold.co/600x400?text=Producto"
-          }
-          alt={name}
-        />
-
-      </CardActionArea>
-
-      <CardContent>
-
-        <Typography
-          color="primary"
-          fontWeight={600}
-        >
-          {category}
-        </Typography>
-
         <Typography
           variant="h6"
           fontWeight={700}
-          mt={1}
+          gutterBottom
         >
           {name}
         </Typography>
 
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          mb={2}
+        >
+          {description}
+        </Typography>
+
         <Stack
           direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          mt={3}
+          spacing={1}
+          mb={2}
         >
+          <Chip
+            label={category}
+            color="primary"
+            size="small"
+          />
 
           <Chip
-            color={
-              stock > 0
-                ? "success"
-                : "error"
-            }
-            label={
-              stock > 0
-                ? `${stock} disponibles`
-                : "Agotado"
-            }
+            label={`Stock ${stock}`}
+            color={stock > 0 ? "success" : "error"}
+            size="small"
           />
+        </Stack>
+
+        <Box sx={{ mt: "auto" }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+          >
+            Precio de compra
+          </Typography>
+
+          <Typography
+            variant="h5"
+            color="primary"
+            fontWeight={700}
+          >
+            ${purchasePrice.toLocaleString()}
+          </Typography>
+
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            mt={2}
+          >
+            Precio sugerido
+          </Typography>
 
           <Typography
             variant="h6"
             fontWeight={700}
-            color="primary"
           >
-            ${price.toLocaleString("es-CO")}
+            ${salePrice.toLocaleString()}
           </Typography>
 
-        </Stack>
-
+          <Button
+            component={Link}
+            to={`/producto/${id}`}
+            variant="contained"
+            fullWidth
+            sx={{
+              mt: 3,
+              borderRadius: 3
+            }}
+          >
+            Ver detalles
+          </Button>
+        </Box>
       </CardContent>
-
-      <CardActions>
-
-        <Button
-          fullWidth
-          variant="contained"
-          onClick={() =>
-            navigate(`/productos/${id}`)
-          }
-        >
-          Ver producto
-        </Button>
-
-      </CardActions>
-
     </Card>
-
   );
-
 }
 
 export default ProductCard;

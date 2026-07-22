@@ -14,18 +14,27 @@ function FeaturedProducts() {
   const { data, isLoading, error } = useProducts();
 
   if (isLoading) {
-    return <CircularProgress />;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          py: 8
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (error) {
     return (
-      <Typography>
+      <Typography align="center">
         Error cargando productos.
       </Typography>
     );
   }
 
-  // Mostrar solo los primeros 4 productos
   const products = data?.data?.slice(0, 4) || [];
 
   return (
@@ -65,9 +74,11 @@ function FeaturedProducts() {
                   "https://placehold.co/600x400?text=Producto"
                 }
                 name={product.name}
-                category={product.category?.name}
+                description={product.description}
+                category={product.category?.name || "Sin categoría"}
                 stock={product.stock}
-                price={product.salePrice}
+                purchasePrice={product.purchasePrice}
+                salePrice={product.salePrice}
               />
 
             </Grid>

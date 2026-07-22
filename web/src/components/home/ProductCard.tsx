@@ -129,7 +129,7 @@ function ProductCard({
 
           <Button
             component={Link}
-            to={`/producto/${id}`}
+            to={`/productos/${id}`}
             variant="contained"
             fullWidth
             sx={{

@@ -38,6 +38,10 @@ function ProductForm() {
 
   const { data: suppliers } = useSuppliers();
 
+  console.log("Categorias:", categories);
+  console.log("Marcas:", brands);
+  console.log("Proveedores:", suppliers);
+
   const createProduct = useCreateProduct();
 
   const uploadImage = useUploadProductImage();
@@ -423,7 +427,7 @@ function ProductForm() {
               Seleccione...
             </MenuItem>
 
-            {categories?.data?.map((category: any) => (
+            {categories?.map((category: any) => (
 
               <MenuItem
                 key={category.id}

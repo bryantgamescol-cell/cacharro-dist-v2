@@ -6,13 +6,21 @@ class CategoriesController {
 
   async getAll(req: Request, res: Response) {
     try {
+
       const data = await service.findAll();
 
-      return res.status(200).json(data);
+      return res.status(200).json({
+        success: true,
+        data
+      });
+
     } catch (error) {
+
       return res.status(500).json({
+        success: false,
         message: "Error al obtener las categorías"
       });
+
     }
   }
 
@@ -21,20 +29,28 @@ class CategoriesController {
     res: Response
   ) {
     try {
+
       const data = await service.findOne(req.params.id);
 
       if (!data) {
         return res.status(404).json({
+          success: false,
           message: "Categoría no encontrada"
         });
       }
 
-      return res.status(200).json(data);
+      return res.status(200).json({
+        success: true,
+        data
+      });
 
     } catch (error) {
+
       return res.status(500).json({
+        success: false,
         message: "Error al buscar la categoría"
       });
+
     }
   }
 
@@ -47,19 +63,26 @@ class CategoriesController {
       const data =
         await service.create(validatedData);
 
-      return res.status(201).json(data);
+      return res.status(201).json({
+        success: true,
+        data,
+        message: "Categoría creada correctamente"
+      });
 
     } catch (error: any) {
 
       if (error.errors) {
         return res.status(400).json({
+          success: false,
           message: error.errors
         });
       }
 
       return res.status(500).json({
+        success: false,
         message: "Error al crear la categoría"
       });
+
     }
   }
 
@@ -77,19 +100,26 @@ class CategoriesController {
         validatedData
       );
 
-      return res.status(200).json(data);
+      return res.status(200).json({
+        success: true,
+        data,
+        message: "Categoría actualizada correctamente"
+      });
 
     } catch (error: any) {
 
       if (error.errors) {
         return res.status(400).json({
+          success: false,
           message: error.errors
         });
       }
 
       return res.status(500).json({
+        success: false,
         message: "Error al actualizar la categoría"
       });
+
     }
   }
 
@@ -109,6 +139,7 @@ class CategoriesController {
     } catch (error) {
 
       return res.status(500).json({
+        success: false,
         message: "Error al eliminar la categoría"
       });
 

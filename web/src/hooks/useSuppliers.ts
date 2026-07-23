@@ -5,9 +5,7 @@ const getSuppliers = async () => {
 
   const { data } = await api.get("/suppliers");
 
-  return {
-    data
-  };
+  return data;
 
 };
 

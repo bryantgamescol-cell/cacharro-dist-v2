@@ -427,7 +427,7 @@ function ProductForm() {
               Seleccione...
             </MenuItem>
 
-            {categories?.map((category: any) => (
+            {categories?.data?.map((category: any) => (
 
               <MenuItem
                 key={category.id}

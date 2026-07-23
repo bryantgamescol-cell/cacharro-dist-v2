@@ -31,6 +31,14 @@ function ProductCard({
   purchasePrice,
   salePrice
 }: Props) {
+
+  const apiUrl =
+    import.meta.env.VITE_API_URL.replace("/api", "");
+
+  const imageUrl = image
+    ? `${apiUrl}${image}`
+    : "https://placehold.co/600x400?text=Sin+Imagen";
+
   return (
     <Card
       sx={{
@@ -49,10 +57,8 @@ function ProductCard({
       <CardMedia
         component="img"
         height="240"
-        image={
-          image ||
-          "https://placehold.co/600x400?text=Sin+Imagen"
-        }
+        image={imageUrl}
+        alt={name}
       />
 
       <CardContent

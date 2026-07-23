@@ -423,7 +423,7 @@ function ProductForm() {
               Seleccione...
             </MenuItem>
 
-            {categories?.map((category: any) => (
+            {categories?.data?.map((category: any) => (
 
               <MenuItem
                 key={category.id}
@@ -453,7 +453,7 @@ function ProductForm() {
               Seleccione...
             </MenuItem>
 
-            {brands?.map((brand: any) => (
+            {brands?.data?.map((brand: any) => (
 
               <MenuItem
                 key={brand.id}
@@ -483,7 +483,7 @@ function ProductForm() {
               Ninguno
             </MenuItem>
 
-            {suppliers?.map((supplier: any) => (
+            {suppliers?.data?.map((supplier: any) => (
 
               <MenuItem
                 key={supplier.id}

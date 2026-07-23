@@ -40,6 +40,14 @@ function ProductDetail() {
     );
   }
 
+  const apiUrl =
+    (import.meta.env.VITE_API_URL || "http://localhost:3000/api")
+      .replace("/api", "");
+
+  const imageUrl = product.image
+    ? `${apiUrl}${product.image}`
+    : "https://placehold.co/600x600?text=Producto";
+
   return (
 
     <Container
@@ -70,12 +78,13 @@ function ProductDetail() {
           >
 
             <img
-              src={
-                product.image ||
-                "https://placehold.co/600x600?text=Producto"
-              }
+              src={imageUrl}
               alt={product.name}
               width="100%"
+              style={{
+                borderRadius: 12,
+                objectFit: "cover"
+              }}
             />
 
           </Paper>
@@ -199,9 +208,7 @@ function ProductDetail() {
           </Typography>
 
           <Typography color="text.secondary">
-
             {product.description}
-
           </Typography>
 
           <Button

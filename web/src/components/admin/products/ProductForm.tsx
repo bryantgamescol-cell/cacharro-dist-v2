@@ -162,11 +162,15 @@ function ProductForm() {
 
         if (product.image) {
 
-          setImagePreview(
-            `${import.meta.env.VITE_API_URL}${product.image}`
-          );
+          const apiUrl =
+          (import.meta.env.VITE_API_URL || "http://localhost:3000/api")
+         .replace("/api", "");
 
-        }
+          setImagePreview(
+          `${apiUrl}${product.image}`
+        );
+
+}
 
       } catch {
 

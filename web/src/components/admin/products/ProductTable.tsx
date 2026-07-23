@@ -28,6 +28,10 @@ function ProductTable({ products }: Props) {
 
   const deleteMutation = useDeleteProduct();
 
+  const apiUrl =
+    (import.meta.env.VITE_API_URL || "http://localhost:3000/api")
+      .replace("/api", "");
+
   const columns: GridColDef[] = [
 
     {
@@ -41,7 +45,7 @@ function ProductTable({ products }: Props) {
           variant="rounded"
           src={
             params.row.image
-              ? `${import.meta.env.VITE_API_URL}${params.row.image}`
+              ? `${apiUrl}${params.row.image}`
               : ""
           }
           sx={{
@@ -75,8 +79,7 @@ function ProductTable({ products }: Props) {
       width: 120,
 
       valueFormatter: (value) =>
-        "$" +
-        Number(value).toLocaleString("es-CO")
+        "$" + Number(value).toLocaleString("es-CO")
     },
 
     {
@@ -85,8 +88,7 @@ function ProductTable({ products }: Props) {
       width: 120,
 
       valueFormatter: (value) =>
-        "$" +
-        Number(value).toLocaleString("es-CO")
+        "$" + Number(value).toLocaleString("es-CO")
     },
 
     {
@@ -113,7 +115,6 @@ function ProductTable({ products }: Props) {
       field: "acciones",
       headerName: "Acciones",
       width: 150,
-
       sortable: false,
 
       renderCell: (params) => (
@@ -125,14 +126,10 @@ function ProductTable({ products }: Props) {
             <IconButton
               color="primary"
               onClick={() =>
-                navigate(
-                  `/admin/products/${params.row.id}/edit`
-                )
+                navigate(`/admin/products/${params.row.id}/edit`)
               }
             >
-
               <EditIcon />
-
             </IconButton>
 
           </Tooltip>
@@ -144,19 +141,12 @@ function ProductTable({ products }: Props) {
               onClick={async () => {
 
                 const result = await Swal.fire({
-
                   title: "¿Eliminar producto?",
-
                   text: "Esta acción no se puede deshacer.",
-
                   icon: "warning",
-
                   showCancelButton: true,
-
                   confirmButtonText: "Eliminar",
-
                   cancelButtonText: "Cancelar"
-
                 });
 
                 if (!result.isConfirmed) return;
@@ -165,9 +155,7 @@ function ProductTable({ products }: Props) {
 
               }}
             >
-
               <DeleteIcon />
-
             </IconButton>
 
           </Tooltip>

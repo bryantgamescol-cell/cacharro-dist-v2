@@ -5,7 +5,9 @@ const getCategories = async () => {
 
   const { data } = await api.get("/categories");
 
-  return data;
+  return {
+    data
+  };
 
 };
 

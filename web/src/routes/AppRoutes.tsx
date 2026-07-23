@@ -53,6 +53,7 @@ function AppRoutes() {
         />
 
       </Route>
+      
 
       {/* ================= LOGIN ================= */}
 
@@ -114,6 +115,7 @@ function AppRoutes() {
       </Route>
 
     </Routes>
+    
   );
 }
 

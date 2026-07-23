@@ -53,7 +53,7 @@ function CategoriesSection() {
 
         <Grid container spacing={3}>
 
-          {data?.map((category: any) => (
+          {data?.data?.map((category: any) => (
 
             <Grid
               key={category.id}

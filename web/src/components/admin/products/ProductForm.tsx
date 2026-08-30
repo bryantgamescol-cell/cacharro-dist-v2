@@ -38,10 +38,6 @@ function ProductForm() {
 
   const { data: suppliers } = useSuppliers();
 
-  console.log("Categorias:", categories);
-  console.log("Marcas:", brands);
-  console.log("Proveedores:", suppliers);
-
   const createProduct = useCreateProduct();
 
   const uploadImage = useUploadProductImage();
@@ -80,19 +76,31 @@ function ProductForm() {
 
   });
 
+  /*
+  |--------------------------------------------------------------------------
+  | CAMBIAR CAMPOS
+  |--------------------------------------------------------------------------
+  */
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
 
-    setForm({
+    setForm((prev) => ({
 
-      ...form,
+      ...prev,
 
       [e.target.name]: e.target.value
 
-    });
+    }));
 
   };
+
+  /*
+  |--------------------------------------------------------------------------
+  | SELECCIONAR IMAGEN
+  |--------------------------------------------------------------------------
+  */
 
   const handleImage = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -102,11 +110,82 @@ function ProductForm() {
 
     if (!file) return;
 
+    /*
+    |----------------------------------------------------------------------
+    | Validar tamaño
+    |----------------------------------------------------------------------
+    */
+
+    if (file.size > 5 * 1024 * 1024) {
+
+      Swal.fire({
+
+        icon: "warning",
+
+        title: "Imagen demasiado grande",
+
+        text: "La imagen no puede superar los 5 MB."
+
+      });
+
+      return;
+
+    }
+
+    /*
+    |----------------------------------------------------------------------
+    | Validar tipo
+    |----------------------------------------------------------------------
+    */
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp"
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+
+      Swal.fire({
+
+        icon: "warning",
+
+        title: "Formato no permitido",
+
+        text: "Solo se permiten imágenes JPG, PNG o WEBP."
+
+      });
+
+      return;
+
+    }
+
+    /*
+    |----------------------------------------------------------------------
+    | Guardamos archivo
+    |----------------------------------------------------------------------
+    */
+
     setSelectedImage(file);
 
-    setImagePreview(URL.createObjectURL(file));
+    /*
+    |----------------------------------------------------------------------
+    | Previsualización local
+    |----------------------------------------------------------------------
+    */
+
+    const previewUrl =
+      URL.createObjectURL(file);
+
+    setImagePreview(previewUrl);
 
   };
+
+  /*
+  |--------------------------------------------------------------------------
+  | CARGAR PRODUCTO CUANDO ESTAMOS EDITANDO
+  |--------------------------------------------------------------------------
+  */
 
   useEffect(() => {
 
@@ -124,21 +203,28 @@ function ProductForm() {
 
         const product = data;
 
+        /*
+        |------------------------------------------------------------------
+        | Cargar información del producto
+        |------------------------------------------------------------------
+        */
+
         setForm({
 
-          name: product.name,
+          name:
+            product.name || "",
 
           description:
             product.description || "",
 
           purchasePrice:
-            String(product.purchasePrice),
+            String(product.purchasePrice ?? ""),
 
           salePrice:
-            String(product.salePrice),
+            String(product.salePrice ?? ""),
 
           stock:
-            String(product.stock),
+            String(product.stock ?? ""),
 
           sku:
             product.sku || "",
@@ -147,10 +233,10 @@ function ProductForm() {
             product.barcode || "",
 
           categoryId:
-            product.categoryId,
+            product.categoryId || "",
 
           brandId:
-            product.brandId,
+            product.brandId || "",
 
           supplierId:
             product.supplierId || "",
@@ -160,19 +246,30 @@ function ProductForm() {
 
         });
 
+        /*
+        |------------------------------------------------------------------
+        | MUY IMPORTANTE:
+        |
+        | product.image ahora debe ser la URL de Cloudinary.
+        |
+        | NO agregamos /uploads.
+        |------------------------------------------------------------------
+        */
+
         if (product.image) {
 
-          const apiUrl =
-          (import.meta.env.VITE_API_URL || "http://localhost:3000/api")
-         .replace("/api", "");
-
           setImagePreview(
-          `${apiUrl}${product.image}`
+            product.image
+          );
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Error cargando producto:",
+          error
         );
-
-}
-
-      } catch {
 
         Swal.fire({
 
@@ -194,10 +291,23 @@ function ProductForm() {
 
     loadProduct();
 
-  }, [editing, id]);
-    const handleSubmit = async () => {
+  }, [editing, id, navigate]);
+
+  /*
+  |--------------------------------------------------------------------------
+  | GUARDAR PRODUCTO
+  |--------------------------------------------------------------------------
+  */
+
+  const handleSubmit = async () => {
 
     try {
+
+      /*
+      |--------------------------------------------------------------------
+      | VALIDACIONES
+      |--------------------------------------------------------------------
+      */
 
       if (
         !form.name ||
@@ -208,26 +318,62 @@ function ProductForm() {
         !form.brandId
       ) {
 
-        return Swal.fire({
+        await Swal.fire({
 
           icon: "warning",
 
-          title: "Completa todos los campos obligatorios"
+          title:
+            "Completa todos los campos obligatorios"
 
         });
 
+        return;
+
       }
 
+      /*
+      |--------------------------------------------------------------------
+      | IMAGEN ACTUAL
+      |
+      | Si estamos editando y no seleccionamos otra imagen,
+      | conservamos la URL que ya estaba guardada.
+      |--------------------------------------------------------------------
+      */
+
       let image = form.image;
+
+      /*
+      |--------------------------------------------------------------------
+      | SI SE SELECCIONÓ UNA NUEVA IMAGEN
+      |
+      | Primero la subimos a Cloudinary.
+      |--------------------------------------------------------------------
+      */
 
       if (selectedImage) {
 
         const response =
-          await uploadImage.mutateAsync(selectedImage);
+          await uploadImage.mutateAsync(
+            selectedImage
+          );
 
-        image = response.path;
+        /*
+        |------------------------------------------------------------------
+        | AQUÍ ESTÁ EL CAMBIO IMPORTANTE
+        |
+        | Guardamos directamente la URL de Cloudinary.
+        |------------------------------------------------------------------
+        */
+
+        image = response.url;
 
       }
+
+      /*
+      |--------------------------------------------------------------------
+      | DATOS DEL PRODUCTO
+      |--------------------------------------------------------------------
+      */
 
       const body = {
 
@@ -235,25 +381,58 @@ function ProductForm() {
 
         image,
 
-        purchasePrice: Number(form.purchasePrice),
+        purchasePrice:
+          Number(form.purchasePrice),
 
-        salePrice: Number(form.salePrice),
+        salePrice:
+          Number(form.salePrice),
 
-        stock: Number(form.stock)
+        stock:
+          Number(form.stock)
 
       };
 
+      console.log(
+        "Producto que se enviará:",
+        body
+      );
+
+      /*
+      |--------------------------------------------------------------------
+      | ACTUALIZAR
+      |--------------------------------------------------------------------
+      */
+
       if (editing) {
 
-        await api.put(`/products/${id}`, body);
-
-      } else {
-
-        await createProduct.mutateAsync(body);
+        await api.put(
+          `/products/${id}`,
+          body
+        );
 
       }
 
-      Swal.fire({
+      /*
+      |--------------------------------------------------------------------
+      | CREAR
+      |--------------------------------------------------------------------
+      */
+
+      else {
+
+        await createProduct.mutateAsync(
+          body
+        );
+
+      }
+
+      /*
+      |--------------------------------------------------------------------
+      | MENSAJE DE ÉXITO
+      |--------------------------------------------------------------------
+      */
+
+      await Swal.fire({
 
         icon: "success",
 
@@ -267,9 +446,20 @@ function ProductForm() {
 
       });
 
+      /*
+      |--------------------------------------------------------------------
+      | VOLVER A PRODUCTOS
+      |--------------------------------------------------------------------
+      */
+
       navigate("/admin/products");
 
     } catch (error: any) {
+
+      console.error(
+        "Error guardando producto:",
+        error
+      );
 
       Swal.fire({
 
@@ -279,13 +469,19 @@ function ProductForm() {
 
         text:
           error.response?.data?.message ||
-          "No fue posible guardar"
+          "No fue posible guardar el producto"
 
       });
 
     }
 
   };
+
+  /*
+  |--------------------------------------------------------------------------
+  | LOADING
+  |--------------------------------------------------------------------------
+  */
 
   if (loading) {
 
@@ -304,6 +500,12 @@ function ProductForm() {
     );
 
   }
+
+  /*
+  |--------------------------------------------------------------------------
+  | FORMULARIO
+  |--------------------------------------------------------------------------
+  */
 
   return (
 
@@ -326,9 +528,19 @@ function ProductForm() {
 
       </Typography>
 
-      <Grid container spacing={3}>
+      <Grid
+        container
+        spacing={3}
+      >
 
-        <Grid size={{ xs: 12, md: 6 }}>
+        {/* NOMBRE */}
+
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}
+        >
 
           <TextField
             fullWidth
@@ -340,7 +552,14 @@ function ProductForm() {
 
         </Grid>
 
-        <Grid size={{ xs: 12, md: 6 }}>
+        {/* STOCK */}
+
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}
+        >
 
           <TextField
             fullWidth
@@ -352,6 +571,8 @@ function ProductForm() {
           />
 
         </Grid>
+
+        {/* DESCRIPCIÓN */}
 
         <Grid size={12}>
 
@@ -367,7 +588,14 @@ function ProductForm() {
 
         </Grid>
 
-        <Grid size={{ xs: 12, md: 6 }}>
+        {/* PRECIO COMPRA */}
+
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}
+        >
 
           <TextField
             fullWidth
@@ -380,7 +608,14 @@ function ProductForm() {
 
         </Grid>
 
-        <Grid size={{ xs: 12, md: 6 }}>
+        {/* PRECIO VENTA */}
+
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}
+        >
 
           <TextField
             fullWidth
@@ -393,7 +628,14 @@ function ProductForm() {
 
         </Grid>
 
-        <Grid size={{ xs: 12, md: 6 }}>
+        {/* SKU */}
+
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}
+        >
 
           <TextField
             fullWidth
@@ -405,7 +647,14 @@ function ProductForm() {
 
         </Grid>
 
-        <Grid size={{ xs: 12, md: 6 }}>
+        {/* CÓDIGO DE BARRAS */}
+
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}
+        >
 
           <TextField
             fullWidth
@@ -416,7 +665,15 @@ function ProductForm() {
           />
 
         </Grid>
-                <Grid size={{ xs: 12, md: 4 }}>
+
+        {/* CATEGORÍA */}
+
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}
+        >
 
           <TextField
             fullWidth
@@ -431,22 +688,34 @@ function ProductForm() {
               Seleccione...
             </MenuItem>
 
-            {categories?.data?.map((category: any) => (
+            {Array.isArray(categories?.data) &&
+              categories.data.map(
+                (category: any) => (
 
-              <MenuItem
-                key={category.id}
-                value={category.id}
-              >
-                {category.name}
-              </MenuItem>
+                  <MenuItem
+                    key={category.id}
+                    value={category.id}
+                  >
 
-            ))}
+                    {category.name}
+
+                  </MenuItem>
+
+                )
+              )}
 
           </TextField>
 
         </Grid>
 
-        <Grid size={{ xs: 12, md: 4 }}>
+        {/* MARCA */}
+
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}
+        >
 
           <TextField
             fullWidth
@@ -461,22 +730,34 @@ function ProductForm() {
               Seleccione...
             </MenuItem>
 
-            {brands?.data?.map((brand: any) => (
+            {Array.isArray(brands?.data) &&
+              brands.data.map(
+                (brand: any) => (
 
-              <MenuItem
-                key={brand.id}
-                value={brand.id}
-              >
-                {brand.name}
-              </MenuItem>
+                  <MenuItem
+                    key={brand.id}
+                    value={brand.id}
+                  >
 
-            ))}
+                    {brand.name}
+
+                  </MenuItem>
+
+                )
+              )}
 
           </TextField>
 
         </Grid>
 
-        <Grid size={{ xs: 12, md: 4 }}>
+        {/* PROVEEDOR */}
+
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}
+        >
 
           <TextField
             fullWidth
@@ -491,20 +772,27 @@ function ProductForm() {
               Ninguno
             </MenuItem>
 
-            {suppliers?.data?.map((supplier: any) => (
+            {Array.isArray(suppliers?.data) &&
+              suppliers.data.map(
+                (supplier: any) => (
 
-              <MenuItem
-                key={supplier.id}
-                value={supplier.id}
-              >
-                {supplier.name}
-              </MenuItem>
+                  <MenuItem
+                    key={supplier.id}
+                    value={supplier.id}
+                  >
 
-            ))}
+                    {supplier.name}
+
+                  </MenuItem>
+
+                )
+              )}
 
           </TextField>
 
         </Grid>
+
+        {/* IMAGEN */}
 
         <Grid size={12}>
 
@@ -526,26 +814,46 @@ function ProductForm() {
               }}
             />
 
-            <Button
-              component="label"
-              variant="outlined"
-              size="large"
-            >
+            <Box>
 
-              Seleccionar imagen
+              <Button
+                component="label"
+                variant="outlined"
+                size="large"
+              >
 
-              <input
-                hidden
-                type="file"
-                accept="image/*"
-                onChange={handleImage}
-              />
+                Seleccionar imagen
 
-            </Button>
+                <input
+                  hidden
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleImage}
+                />
+
+              </Button>
+
+              {selectedImage && (
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  mt={1}
+                >
+
+                  {selectedImage.name}
+
+                </Typography>
+
+              )}
+
+            </Box>
 
           </Stack>
 
         </Grid>
+
+        {/* BOTONES */}
 
         <Grid size={12}>
 
@@ -561,7 +869,9 @@ function ProductForm() {
                 navigate("/admin/products")
               }
             >
+
               Cancelar
+
             </Button>
 
             <Button
@@ -574,9 +884,11 @@ function ProductForm() {
               }
             >
 
-              {editing
-                ? "Actualizar producto"
-                : "Guardar producto"}
+              {uploadImage.isPending
+                ? "Subiendo imagen..."
+                : editing
+                  ? "Actualizar producto"
+                  : "Guardar producto"}
 
             </Button>
 

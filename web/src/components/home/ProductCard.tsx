@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+
 import {
   Card,
   CardMedia,
@@ -32,12 +33,9 @@ function ProductCard({
   salePrice
 }: Props) {
 
-  const apiUrl =
-    import.meta.env.VITE_API_URL.replace("/api", "");
-
-  const imageUrl = image
-    ? `${apiUrl}${image}`
-    : "https://placehold.co/600x400?text=Sin+Imagen";
+  const imageUrl =
+    image ||
+    "https://placehold.co/600x400?text=Sin+Imagen";
 
   return (
     <Card
@@ -48,17 +46,23 @@ function ProductCard({
         height: "100%",
         display: "flex",
         flexDirection: "column",
+
         "&:hover": {
           transform: "translateY(-8px)",
           boxShadow: 8
         }
       }}
     >
+
       <CardMedia
         component="img"
         height="240"
         image={imageUrl}
         alt={name}
+        sx={{
+          objectFit: "contain",
+          backgroundColor: "#f5f5f5"
+        }}
       />
 
       <CardContent
@@ -68,6 +72,7 @@ function ProductCard({
           flexGrow: 1
         }}
       >
+
         <Typography
           variant="h6"
           fontWeight={700}
@@ -81,7 +86,7 @@ function ProductCard({
           color="text.secondary"
           mb={2}
         >
-          {description}
+          {description || "Sin descripción"}
         </Typography>
 
         <Stack
@@ -89,6 +94,7 @@ function ProductCard({
           spacing={1}
           mb={2}
         >
+
           <Chip
             label={category}
             color="primary"
@@ -97,12 +103,18 @@ function ProductCard({
 
           <Chip
             label={`Stock ${stock}`}
-            color={stock > 0 ? "success" : "error"}
+            color={
+              stock > 0
+                ? "success"
+                : "error"
+            }
             size="small"
           />
+
         </Stack>
 
         <Box sx={{ mt: "auto" }}>
+
           <Typography
             variant="body2"
             color="text.secondary"
@@ -115,7 +127,10 @@ function ProductCard({
             color="primary"
             fontWeight={700}
           >
-            ${purchasePrice.toLocaleString()}
+            $
+            {Number(
+              purchasePrice
+            ).toLocaleString("es-CO")}
           </Typography>
 
           <Typography
@@ -130,7 +145,10 @@ function ProductCard({
             variant="h6"
             fontWeight={700}
           >
-            ${salePrice.toLocaleString()}
+            $
+            {Number(
+              salePrice
+            ).toLocaleString("es-CO")}
           </Typography>
 
           <Button
@@ -145,8 +163,11 @@ function ProductCard({
           >
             Ver detalles
           </Button>
+
         </Box>
+
       </CardContent>
+
     </Card>
   );
 }

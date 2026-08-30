@@ -18,9 +18,13 @@ function ProductDetail() {
 
   const { id } = useParams();
 
-  const { data: product, isLoading } = useProduct(id!);
+  const {
+    data: product,
+    isLoading
+  } = useProduct(id!);
 
   if (isLoading) {
+
     return (
       <Box
         display="flex"
@@ -30,23 +34,22 @@ function ProductDetail() {
         <CircularProgress />
       </Box>
     );
+
   }
 
   if (!product) {
+
     return (
       <Typography align="center">
         Producto no encontrado
       </Typography>
     );
+
   }
 
-  const apiUrl =
-    (import.meta.env.VITE_API_URL || "http://localhost:3000/api")
-      .replace("/api", "");
-
-  const imageUrl = product.image
-    ? `${apiUrl}${product.image}`
-    : "https://placehold.co/600x600?text=Producto";
+  const imageUrl =
+    product.image ||
+    "https://placehold.co/600x600?text=Producto";
 
   return (
 
@@ -77,13 +80,15 @@ function ProductDetail() {
             }}
           >
 
-            <img
+            <Box
+              component="img"
               src={imageUrl}
               alt={product.name}
-              width="100%"
-              style={{
-                borderRadius: 12,
-                objectFit: "cover"
+              sx={{
+                width: "100%",
+                height: 450,
+                objectFit: "contain",
+                display: "block"
               }}
             />
 
@@ -148,7 +153,9 @@ function ProductDetail() {
                 fontWeight={700}
               >
                 $
-                {product.purchasePrice.toLocaleString("es-CO")}
+                {Number(
+                  product.purchasePrice
+                ).toLocaleString("es-CO")}
               </Typography>
 
             </Paper>
@@ -171,7 +178,9 @@ function ProductDetail() {
                 fontWeight={700}
               >
                 $
-                {product.salePrice.toLocaleString("es-CO")}
+                {Number(
+                  product.salePrice
+                ).toLocaleString("es-CO")}
               </Typography>
 
             </Paper>
@@ -186,7 +195,7 @@ function ProductDetail() {
           </Typography>
 
           <Typography>
-            {product.brand?.name}
+            {product.brand?.name || "Sin marca"}
           </Typography>
 
           <Typography
@@ -197,7 +206,8 @@ function ProductDetail() {
           </Typography>
 
           <Typography>
-            {product.category?.name}
+            {product.category?.name ||
+              "Sin categoría"}
           </Typography>
 
           <Typography
@@ -208,7 +218,8 @@ function ProductDetail() {
           </Typography>
 
           <Typography color="text.secondary">
-            {product.description}
+            {product.description ||
+              "Sin descripción"}
           </Typography>
 
           <Button

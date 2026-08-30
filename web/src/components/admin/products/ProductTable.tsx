@@ -9,28 +9,36 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import { DataGrid } from "@mui/x-data-grid";
-import type { GridColDef } from "@mui/x-data-grid";
+import {
+  DataGrid
+} from "@mui/x-data-grid";
 
-import { useNavigate } from "react-router-dom";
+import type {
+  GridColDef
+} from "@mui/x-data-grid";
+
+import {
+  useNavigate
+} from "react-router-dom";
 
 import Swal from "sweetalert2";
 
-import { useDeleteProduct } from "../../../hooks/useDeleteProduct";
+import {
+  useDeleteProduct
+} from "../../../hooks/useDeleteProduct";
 
 type Props = {
   products: any[];
 };
 
-function ProductTable({ products }: Props) {
+function ProductTable({
+  products
+}: Props) {
 
   const navigate = useNavigate();
 
-  const deleteMutation = useDeleteProduct();
-
-  const apiUrl =
-    (import.meta.env.VITE_API_URL || "http://localhost:3000/api")
-      .replace("/api", "");
+  const deleteMutation =
+    useDeleteProduct();
 
   const columns: GridColDef[] = [
 
@@ -44,9 +52,8 @@ function ProductTable({ products }: Props) {
         <Avatar
           variant="rounded"
           src={
-            params.row.image
-              ? `${apiUrl}${params.row.image}`
-              : ""
+            params.row.image ||
+            ""
           }
           sx={{
             width: 50,
@@ -70,7 +77,9 @@ function ProductTable({ products }: Props) {
       flex: 1,
 
       valueGetter: (_, row) =>
-        row.category?.name
+        row.category?.name ||
+        "Sin categoría"
+
     },
 
     {
@@ -79,7 +88,10 @@ function ProductTable({ products }: Props) {
       width: 120,
 
       valueFormatter: (value) =>
-        "$" + Number(value).toLocaleString("es-CO")
+        "$" +
+        Number(value)
+          .toLocaleString("es-CO")
+
     },
 
     {
@@ -88,7 +100,10 @@ function ProductTable({ products }: Props) {
       width: 120,
 
       valueFormatter: (value) =>
-        "$" + Number(value).toLocaleString("es-CO")
+        "$" +
+        Number(value)
+          .toLocaleString("es-CO")
+
     },
 
     {
@@ -126,7 +141,9 @@ function ProductTable({ products }: Props) {
             <IconButton
               color="primary"
               onClick={() =>
-                navigate(`/admin/products/${params.row.id}/edit`)
+                navigate(
+                  `/admin/products/${params.row.id}/edit`
+                )
               }
             >
               <EditIcon />
@@ -140,22 +157,42 @@ function ProductTable({ products }: Props) {
               color="error"
               onClick={async () => {
 
-                const result = await Swal.fire({
-                  title: "¿Eliminar producto?",
-                  text: "Esta acción no se puede deshacer.",
-                  icon: "warning",
-                  showCancelButton: true,
-                  confirmButtonText: "Eliminar",
-                  cancelButtonText: "Cancelar"
-                });
+                const result =
+                  await Swal.fire({
 
-                if (!result.isConfirmed) return;
+                    title:
+                      "¿Eliminar producto?",
 
-                deleteMutation.mutate(params.row.id);
+                    text:
+                      "Esta acción no se puede deshacer.",
+
+                    icon: "warning",
+
+                    showCancelButton: true,
+
+                    confirmButtonText:
+                      "Eliminar",
+
+                    cancelButtonText:
+                      "Cancelar"
+
+                  });
+
+                if (
+                  !result.isConfirmed
+                ) {
+                  return;
+                }
+
+                deleteMutation.mutate(
+                  params.row.id
+                );
 
               }}
             >
+
               <DeleteIcon />
+
             </IconButton>
 
           </Tooltip>
@@ -175,7 +212,12 @@ function ProductTable({ products }: Props) {
       rows={products}
       columns={columns}
       getRowId={(row) => row.id}
-      pageSizeOptions={[5, 10, 20, 50]}
+      pageSizeOptions={[
+        5,
+        10,
+        20,
+        50
+      ]}
       initialState={{
         pagination: {
           paginationModel: {

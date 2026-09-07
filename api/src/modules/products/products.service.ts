@@ -18,7 +18,7 @@ class ProductsService {
 
     return repository.findAll(
       query.page ?? 1,
-      query.limit ?? 10,
+      query.limit ?? 1000,
       query.search ?? "",
       query.category ?? "",
       query.brand ?? "",

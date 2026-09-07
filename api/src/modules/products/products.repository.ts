@@ -8,7 +8,7 @@ class ProductsRepository {
 
   async findAll(
     page = 1,
-    limit = 10,
+    limit = 1000,
     search = "",
     category = "",
     brand = "",

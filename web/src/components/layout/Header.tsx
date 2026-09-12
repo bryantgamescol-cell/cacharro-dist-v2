@@ -51,7 +51,7 @@ function Header() {
     const phone = "573022879646";
 
     const message = encodeURIComponent(
-      "Hola, estoy interesado en los productos de Cacharro Dist. ¿Me pueden brindar información?"
+      "Hola, estoy interesado en los productos de TodoMax Distribución. ¿Me pueden brindar información?"
     );
 
     window.open(

@@ -11,9 +11,55 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
+import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+
 import Navbar from "./Navbar";
 
 function Header() {
+
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const [search, setSearch] = useState(
+    searchParams.get("search") || ""
+  );
+
+  // 🔎 Buscar productos
+  const handleSearch = (value: string) => {
+
+    setSearch(value);
+
+    const params = new URLSearchParams();
+
+    const category = searchParams.get("category");
+
+    if (category) {
+      params.set("category", category);
+    }
+
+    if (value.trim()) {
+      params.set("search", value.trim());
+    }
+
+    navigate(`/products?${params.toString()}`);
+  };
+
+  // 📱 Abrir WhatsApp
+  const handleWhatsApp = () => {
+
+    const phone = "573022879646";
+
+    const message = encodeURIComponent(
+      "Hola, estoy interesado en los productos de Cacharro Dist. ¿Me pueden brindar información?"
+    );
+
+    window.open(
+      `https://wa.me/${phone}?text=${message}`,
+      "_blank"
+    );
+  };
+
   return (
     <AppBar
       position="sticky"
@@ -22,6 +68,7 @@ function Header() {
         backgroundColor: "#ffffff"
       }}
     >
+
       <Toolbar
         sx={{
           maxWidth: 1400,
@@ -31,6 +78,8 @@ function Header() {
           justifyContent: "space-between"
         }}
       >
+
+        {/* LOGO / NOMBRE */}
         <Box
           sx={{
             display: "flex",
@@ -38,6 +87,7 @@ function Header() {
             gap: 2
           }}
         >
+
           <Box
             sx={{
               width: 45,
@@ -56,10 +106,13 @@ function Header() {
           >
             TodoMax
           </Typography>
+
         </Box>
 
+        {/* NAVBAR */}
         <Navbar />
 
+        {/* BUSCADOR + WHATSAPP */}
         <Box
           sx={{
             display: "flex",
@@ -67,8 +120,12 @@ function Header() {
             gap: 2
           }}
         >
+
+          {/* 🔎 BUSCADOR */}
           <TextField
             size="small"
+            value={search}
+            onChange={(e) => handleSearch(e.target.value)}
             placeholder="Buscar productos..."
             InputProps={{
               startAdornment: (
@@ -79,9 +136,11 @@ function Header() {
             }}
           />
 
+          {/* 📱 WHATSAPP */}
           <Button
             variant="contained"
             startIcon={<WhatsAppIcon />}
+            onClick={handleWhatsApp}
             sx={{
               backgroundColor: "#25D366",
               textTransform: "none",
@@ -93,8 +152,11 @@ function Header() {
           >
             WhatsApp
           </Button>
+
         </Box>
+
       </Toolbar>
+
     </AppBar>
   );
 }

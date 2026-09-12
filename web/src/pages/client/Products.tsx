@@ -17,12 +17,24 @@ function Products() {
 
   const [searchParams] = useSearchParams();
 
-  const category = searchParams.get("category") || undefined;
+  // 📂 Categoría seleccionada
+  const category =
+    searchParams.get("category") || undefined;
 
-  const { data, isLoading, error } = useProducts({
-    category
+  // 🔎 Texto de búsqueda
+  const search =
+    searchParams.get("search") || undefined;
+
+  const {
+    data,
+    isLoading,
+    error
+  } = useProducts({
+    category,
+    search
   });
 
+  // ⏳ Cargando
   if (isLoading) {
     return (
       <Box
@@ -35,6 +47,7 @@ function Products() {
     );
   }
 
+  // ❌ Error
   if (error) {
     return (
       <Typography align="center">
@@ -52,30 +65,48 @@ function Products() {
       }}
     >
 
+      {/* TÍTULO */}
       <Typography
         variant="h3"
         fontWeight={700}
         mb={5}
       >
-        {category
-          ? "Productos de la categoría"
-          : "Todos los productos"}
+
+        {search
+          ? `Resultados para "${search}"`
+          : category
+            ? "Productos de la categoría"
+            : "Todos los productos"}
+
       </Typography>
 
-      <Grid container spacing={4}>
+      {/* PRODUCTOS */}
+      <Grid
+        container
+        spacing={4}
+      >
 
+        {/* SIN PRODUCTOS */}
         {data?.data?.length === 0 && (
 
           <Grid size={12}>
 
-            <Typography textAlign="center">
-              No hay productos disponibles.
+            <Typography
+              textAlign="center"
+              sx={{
+                py: 5
+              }}
+            >
+              {search
+                ? `No encontramos productos para "${search}".`
+                : "No hay productos disponibles."}
             </Typography>
 
           </Grid>
 
         )}
 
+        {/* LISTA DE PRODUCTOS */}
         {data?.data?.map((product: any) => (
 
           <Grid
@@ -90,16 +121,31 @@ function Products() {
 
             <ProductCard
               id={product.id}
+
               image={
                 product.image ||
                 "https://placehold.co/600x400?text=Producto"
               }
+
               name={product.name}
+
               description={product.description}
-              category={product.category?.name || "Sin categoría"}
+
+              category={
+                product.category?.name ||
+                "Sin categoría"
+              }
+
               stock={product.stock}
-              purchasePrice={product.purchasePrice}
-              salePrice={product.salePrice}
+
+              purchasePrice={
+                product.purchasePrice
+              }
+
+              salePrice={
+                product.salePrice
+              }
+
             />
 
           </Grid>
@@ -111,7 +157,6 @@ function Products() {
     </Container>
 
   );
-
 }
 
 export default Products;

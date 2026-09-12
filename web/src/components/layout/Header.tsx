@@ -42,7 +42,7 @@ function Header() {
       params.set("search", value.trim());
     }
 
-    navigate(`/products?${params.toString()}`);
+    navigate(`/productos?${params.toString()}`);
   };
 
   // 📱 Abrir WhatsApp
